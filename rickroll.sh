@@ -14,8 +14,32 @@ trap "cleanup" INT
 trap "quit" EXIT
 echo -en "\x1b[?25l \x1b[2J \x1b[H"  # Hide cursor, clear screen.
 
-cat rick.s16 | aplay -Dplug:default -q -f S16_LE -r 8000 &
-audpid=$!
+cat rick.s16 | aplay -Dplug:default -q -f S16_LE -r 8000 & audpid=$!
+# fps=25;
+# buffer="";
+# frame=0;
+# next_frame=0;
+# i=0;
+# begin=$(date +%s%N)
+
+# while IFS="\x1b[H" read -r line; do
+# 	# if [ $((i%32)) -eq 0 ]; then
+# 		((frame++))
+# 		echo $buffer
+# 		buffer=""
+# 		now=$(date +%s%N)
+# 		elapsed=$((now - begin))
+# 		total_time=$(((frame * 10**9) / fps))
+# 		sleep_time=$((total_time - elapsed))
+# 		if [ $sleep_time -gt 0 ]; then
+# 			sleep $(printf "%.9f" $(( $sleep_time ))e-9)
+# 		fi
+# 		# next_frame=$((($elapsed * $fps) / 10 ** 9))
+# 	# fi
+# 	# if [ $frame -ge $next_frame ]; then
+# 		buffer+=$line
+# 	# fi
+# done < <(cat astley.bz2 | bunzip2 -q 2> /dev/null)
 
 fps=25;
 buffer="";
@@ -23,25 +47,18 @@ frame=0;
 next_frame=0;
 i=0;
 begin=$(date +%s%N)
+for frame in $(seq 0 6374); do
+	(clear && printf "%s\x1b[H" "$(cat "frames/$frame.txt")") & sleep 0.04
+	
+	# now=$(date +%s%N)
+	# elapsed=$((now - begin))
+	# total_time=$(((frame * 10**9) / fps))
+	# sleep_time=$((total_time - elapsed))
+	# if [ $sleep_time -gt 0 ]; then
+	# 	sleep $(printf "%.9f" $(( $sleep_time ))e-9)
+	# fi
+done
 
-while IFS= read -r line; do
-	if [ $((i%32)) -eq 0 ]; then
-		((frame++))
-		echo $buffer
-		buffer=""
-		now=$(date +%s%N)
-		elapsed=$((now - begin))
-		total_time=$(((frame * 10**9) / fps))
-		sleep_time=$((total_time - elapsed))
-		# if [ $sleep_time -gt 0 ]; then
-		# 	sleep $(printf "%.9f" $(( $sleep_time ))e-9)
-		# fi
-		next_frame=$((($elapsed * $fps) / 10 ** 9))
-	fi
-	if [ $frame -ge $next_frame ]; then
-		buffer+=$line
-	fi
-done < <(cat astley.bz2 | bunzip2 -q 2> /dev/null)
 # Sync FPS to reality as best as possible. Mac's freebsd version of date cannot
 # has nanoseconds so inject python. :/
 # python <(cat <<EOF
