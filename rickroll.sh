@@ -27,19 +27,16 @@ begin=$(date +%s%N)
 while IFS= read -r line; do
 	if [ $((i%32)) -eq 0 ]; then
 		((frame++))
-		echo -n $buffer
+		echo $buffer
 		buffer=""
 		now=$(date +%s%N)
 		elapsed=$((now - begin))
 		total_time=$(((frame * 10**9) / fps))
 		sleep_time=$((total_time - elapsed))
-		# echo "$total_time - $elapsed"
-		# echo "sleep $(printf "%.9f" $(( $sleep_time ))e-9)"
-		if [ $sleep_time -gt 0 ]; then
-			echo "sleeping $(printf "%.9f" $(( $sleep_time ))e-9)"
-			sleep $(printf "%.9f" $(( $sleep_time ))e-9)
-		fi
-		next_frame=$(($elapsed * $fps))
+		# if [ $sleep_time -gt 0 ]; then
+		# 	sleep $(printf "%.9f" $(( $sleep_time ))e-9)
+		# fi
+		next_frame=$((($elapsed * $fps) / 10 ** 9))
 	fi
 	if [ $frame -ge $next_frame ]; then
 		buffer+=$line
